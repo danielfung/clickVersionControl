@@ -3,7 +3,7 @@ var unzip = require('unzip');
 var path = require('path');
 var mkdir = require('mkdirp');
 var EventEmitter=require('events').EventEmitter;
-var filesEE=new EventEmitter();
+var filesEE = new EventEmitter();
 
 var zipFileArray = [];
 
@@ -23,10 +23,10 @@ filesEE.on('files_ready',function(){
       .pipe(unzip.Parse())
       .on('entry', function (entry) {
         var fileName = entry.path;
-        var type = entry.type; // 'Directory' or 'File'
+        var type = entry.type;
         var size = entry.size;
         if (fileName === "importExport\\ImportExport.xml") {
-          var fullPath = __dirname + '/Data/' + folderName
+          var fullPath = __dirname + '/extract/' + folderName
           fileName = path.basename( fileName )
           mkdir.sync(fullPath)
           entry.pipe(fs.createWriteStream( fullPath + '/' + fileName ))
