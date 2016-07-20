@@ -16,25 +16,23 @@ fs.readdir(dirPath, function(err,list){
         }
     }
     for(var i=0; i < list.length; i++) {
-      console.log(list[i]); //print the file
-      fs.createReadStream('./Data/'+list[i])
-        .pipe(unzip.Parse())
-        .on('entry', function (entry) {
-
-            var fileName = entry.path
-            var type = entry.type
-            var size = entry.size;
-
-            if (fileName === 'importExport/ImportExport.xml') {
-              var fullPath = dirPath + path.dirname( fileName )
-              fileName = path.basename( fileName )
-              mkdir.sync(fullPath)
-              entry.pipe(fs.createWriteStream( fullPath + '/' + fileName ))
-            } else {
-              entry.autodrain()
-            }
-
-          })
+      var folderName = path.basename( list[i],'.zip')
+      console.log(folderName);
+      fs.createReadStream(dirPath+list[i])
+      .pipe(unzip.Parse())
+      .on('entry', function (entry) {
+        var fileName = entry.path;
+        var type = entry.type; // 'Directory' or 'File'
+        var size = entry.size;
+        if (fileName === "importExport\\ImportExport.xml") {
+            var fullPath = __dirname + '/Data/' + folderName
+           fileName = path.basename( fileName )
+           mkdir.sync(fullPath)
+           entry.pipe(fs.createWriteStream( fullPath + '/' + fileName ))
+        } else {
+          entry.autodrain();
+        }
+      });
 
     }
 });
