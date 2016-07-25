@@ -5,6 +5,7 @@ var path = require('path');
 var xpath = require('xpath');
 var dom = require('xmldom').DOMParser;
 
+var version = 'Version 1.1.0'
 function getDirectories(srcpath) {
   return fs.readdirSync(srcpath).filter(function(file) {
     return fs.statSync(path.join(srcpath, file)).isDirectory();
@@ -32,17 +33,14 @@ function checkDirectorySync(directory) {
 
 var store = 'IACUC';
 checkDirectorySync('./'+store);
-var folders = getDirectories('./extract');
-folders.forEach(function(value){
-  var dataURL = './extract/'+value+'/ImportExport.xml';
-  var fileStream = fs.createReadStream(dataURL);
-  var streamer = new saxPath.SaXPath(saxParser, '//method');
-  streamer.on('match', function(xml) {
-    doc = new dom().parseFromString(xml);
-    definingType = xpath.select1("/method/@definingType", doc).value;
-    methodname = xpath.select1("/method/@methodname", doc).value;
-    console.log(methodname);
-    checkSubDirectorySync('./'+store+'/'+definingType, definingType, methodname, xml);
-  });
-  fileStream.pipe(saxParser);
+var dataURL = './extract/'+version+'/ImportExport.xml';
+var fileStream = fs.createReadStream(dataURL);
+var streamer = new saxPath.SaXPath(saxParser, '//method');
+streamer.on('match', function(xml) {
+  doc = new dom().parseFromString(xml);
+  definingType = xpath.select1("/method/@definingType", doc).value;
+  methodname = xpath.select1("/method/@methodname", doc).value;
+  console.log(methodname);
+  checkSubDirectorySync('./'+store+'/'+definingType, definingType, methodname, xml);
 });
+fileStream.pipe(saxParser);
