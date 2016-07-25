@@ -2,4 +2,5 @@ Data/*
 node_modules/*
 $HOME/*
 extract/*
-parse/*
+CRMS/*
+IACUC/*
