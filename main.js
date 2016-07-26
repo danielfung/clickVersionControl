@@ -10,16 +10,10 @@ var dom = require('xmldom').DOMParser;
 /* ------------------------------------------------------------------------- */
                           /* Globals */
 var value = 'Version 0.0.8'+'.zip';
-var store = 'IACUC';
+var store = 'DCM';
 var folderName = path.basename(value,'.zip')
 
 /* ------------------------------------------------------------------------- */
-
-function getDirectories(srcpath) {
-  return fs.readdirSync(srcpath).filter(function(file) {
-    return fs.statSync(path.join(srcpath, file)).isDirectory();
-  });
-}
 
 function checkSubDirectorySync(directory, definingType, methodname, xml) {
   try {
@@ -44,7 +38,7 @@ function parseImportExport() {
   getImportExport(function() {
         console.log('Finished unzipping');
         checkDirectorySync('./'+store);
-        var dataURL = './extract/'+folderName+'/ImportExport.xml';
+        var dataURL = './extract/'+'/'+store+'/'+folderName+'/ImportExport.xml';
         var fileStream = fs.createReadStream(dataURL);
         var streamer = new saxPath.SaXPath(saxParser, '//method');
         streamer.on('match', function(xml) {
@@ -59,7 +53,7 @@ function parseImportExport() {
 
 
 function getImportExport(_callback) {
-  var dirPath = './Data/';
+  var dirPath = './Data-'+store+'/';
   fs.createReadStream(dirPath+value)
   .pipe(unzip.Parse())
   .on('entry', function (entry) {
@@ -68,10 +62,10 @@ function getImportExport(_callback) {
     var size = entry.size;
     console.log(fileName);
     if (fileName === "importExport\\ImportExport.xml") {
-      var fullPath = __dirname + '/extract/' + folderName
+      var fullPath = __dirname+'/extract/'+'/'+store+'/'+folderName
       fileName = path.basename(fileName)
       mkdir.sync(fullPath)
-      var w = entry.pipe(fs.createWriteStream(fullPath + '/' + fileName ));
+      var w = entry.pipe(fs.createWriteStream(fullPath+'/'+fileName ));
       w.on('finish', function(){
         _callback();
       });

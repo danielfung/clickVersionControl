@@ -1,6 +1,15 @@
-Data/*
+Data-CRMS/*
+Data-DCM/*
+Data-GRANTS/*
+Data-IACUC/*
+Data-IRB-RN/*
+
 node_modules/*
 $HOME/*
 extract/*
+
 CRMS/*
 IACUC/*
+DCM/*
+GRANTS/*
+IRB-RN/*
