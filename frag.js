@@ -1,16 +1,18 @@
 var fs = require("fs");
+var unzip = require('unzip');
+var path = require('path');
+var mkdir = require('mkdirp');
 var saxParser = require('sax').createStream(true);
 var saxPath = require('saxpath');
-var path = require('path');
 var xpath = require('xpath');
 var dom = require('xmldom').DOMParser;
+require('events').EventEmitter.defaultMaxListeners = Infinity;
 
-var version = 'Version 0.0.8'
-function getDirectories(srcpath) {
-  return fs.readdirSync(srcpath).filter(function(file) {
-    return fs.statSync(path.join(srcpath, file)).isDirectory();
-  });
-}
+/* ------------------------------------------------------------------------- */
+                          /* Globals */
+var store = 'IACUC';
+
+/* ------------------------------------------------------------------------- */
 
 function checkSubDirectorySync(directory, definingType, methodname, xml) {
   try {
@@ -31,18 +33,62 @@ function checkDirectorySync(directory) {
   }
 }
 
-var store = 'IACUC';
-checkDirectorySync('./'+store);
-var dataURL = './extract/'+version+'/ImportExport.xml';
-var fileStream = fs.createReadStream(dataURL);
-var streamer = new saxPath.SaXPath(saxParser, '//method');
-console.log('streamer => '+streamer);
+function parseImportExport() {
+  getImportExport(function() {
+    fs.readdir('./extract/'+store, function(err, verfiles) {
+      verfiles.sort(function(a, b) {
+          return a < b ? -1 : 1;
+      });
+      var j = 0;
+      while(j < 2){
+        checkDirectorySync('./'+store);
+        var dataURL = './extract/'+store+'/'+verfiles[j]+'/ImportExport.xml';
+        console.log('Now dealing with '+dataURL);
+        var fileStream = fs.createReadStream(dataURL);
+        var streamer = new saxPath.SaXPath(saxParser, '//method');
+        streamer.on('match', function(xml) {
+          console.log('Now dealing with xml');
+          doc = new dom().parseFromString(xml, 'text/xml');
+          definingType = xpath.select1("//method/@definingType", doc).value;
+          methodname = xpath.select1("//method/@methodname", doc).value;
+          checkSubDirectorySync('./'+store+'/'+definingType, definingType, methodname, xml);
+        });
+        j++;
+      }
+    });
+    });
+}
 
-streamer.on('match', function(xml) {
-  doc = new dom().parseFromString(xml);
-  definingType = xpath.select1("/method/@definingType", doc).value;
-  methodname = xpath.select1("/method/@methodname", doc).value;
-  console.log(methodname);
-  checkSubDirectorySync('./'+store+'/'+definingType, definingType, methodname, xml);
-});
-fileStream.pipe(saxParser);
+
+function getImportExport(_callback) {
+  var i = 0;
+  var dirPath = './Data-'+store+'/';
+  fs.readdir(dirPath, function(err, files) {
+    files.forEach(function(file, key) {
+      //console.log('unzip: store => '+store+"   file => "+file);
+      var folderName = path.basename(file,'.zip')
+      fs.createReadStream(dirPath+file)
+      .pipe(unzip.Parse())
+      .on('entry', function (entry) {
+        var fileName = entry.path;
+        var type = entry.type;
+        var size = entry.size;
+        if (fileName === "importExport\\ImportExport.xml") {
+          i++;
+          var fullPath = __dirname+'/extract/'+store+'/'+folderName
+          fileName = path.basename(fileName)
+          mkdir.sync(fullPath)
+          var w = entry.pipe(fs.createWriteStream(fullPath+'/'+fileName ));
+          w.on('finish', function(){
+            _callback();
+          });
+        }
+        else {
+          entry.autodrain();
+        }
+      });
+    });
+  });
+}
+
+parseImportExport();

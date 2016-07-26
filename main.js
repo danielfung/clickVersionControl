@@ -38,7 +38,7 @@ function parseImportExport() {
   getImportExport(function() {
         console.log('Finished unzipping');
         checkDirectorySync('./'+store);
-        var dataURL = './extract/'+'/'+store+'/'+folderName+'/ImportExport.xml';
+        var dataURL = './extract/'+store+'/'+folderName+'/ImportExport.xml';
         var fileStream = fs.createReadStream(dataURL);
         var streamer = new saxPath.SaXPath(saxParser, '//method');
         streamer.on('match', function(xml) {
@@ -62,7 +62,7 @@ function getImportExport(_callback) {
     var size = entry.size;
     console.log(fileName);
     if (fileName === "importExport\\ImportExport.xml") {
-      var fullPath = __dirname+'/extract/'+'/'+store+'/'+folderName
+      var fullPath = __dirname+'/extract/'+store+'/'+folderName
       fileName = path.basename(fileName)
       mkdir.sync(fullPath)
       var w = entry.pipe(fs.createWriteStream(fullPath+'/'+fileName ));
