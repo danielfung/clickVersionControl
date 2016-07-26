@@ -5,7 +5,7 @@ var path = require('path');
 var xpath = require('xpath');
 var dom = require('xmldom').DOMParser;
 
-var version = 'Version 1.1.0'
+var version = 'Version 0.0.8'
 function getDirectories(srcpath) {
   return fs.readdirSync(srcpath).filter(function(file) {
     return fs.statSync(path.join(srcpath, file)).isDirectory();
@@ -36,6 +36,8 @@ checkDirectorySync('./'+store);
 var dataURL = './extract/'+version+'/ImportExport.xml';
 var fileStream = fs.createReadStream(dataURL);
 var streamer = new saxPath.SaXPath(saxParser, '//method');
+console.log('streamer => '+streamer);
+
 streamer.on('match', function(xml) {
   doc = new dom().parseFromString(xml);
   definingType = xpath.select1("/method/@definingType", doc).value;
