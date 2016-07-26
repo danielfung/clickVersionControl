@@ -1,5 +1,5 @@
-git config user.email = "victor.fung122@gmail.com"
-git config user.name = "VictorFung1"
 git add --all
-git commit -m "$message"
+git commit -m "adding new comments"
 git push
+
+#random new comments
