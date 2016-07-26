@@ -9,7 +9,7 @@ var dom = require('xmldom').DOMParser;
 
 /* ------------------------------------------------------------------------- */
                           /* Globals */
-var value = 'Version 0.0.8.zip';
+var value = 'Version 0.0.8'+'.zip';
 var store = 'IACUC';
 var folderName = path.basename(value,'.zip')
 
