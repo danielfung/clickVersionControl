@@ -83,8 +83,8 @@ files.forEach(function(zipFile){
     // the late date modified is larger than current means we did it before
     // do nothing
   }
-  else { // the current time is larger than last time means its a new file
-    console.log('lastTime =>'+lastTime+'            currentTime =>'+time);
+  else {
+    // the current time is larger than last time means its a new file
     // update the time
     fs.writeFileSync('./config'+store+'.txt', 'module.exports = { lastdate : '+time+' };');
     fs.appendFileSync('./log'+store+'.txt', '\n------------------ New Start -----------------', {encoding:'utf8'});
