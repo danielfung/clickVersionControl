@@ -4,12 +4,6 @@ var mkdir = require('mkdirp');
 var AdmZip = require('adm-zip');
 var xmldom = require('xmldom').DOMParser;
 
-/* ------------------------------------------------------------------------- */
-                          /* Globals */
-var store = 'IACUC';
-
-/* ------------------------------------------------------------------------- */
-
 function getDateTime() {
     var date = new Date();
     var hour = date.getHours();
@@ -45,7 +39,7 @@ function checkDirectorySync(directory) {
   }
 }
 
-function getImportExport(zipFile, folderName) {
+function getImportExport(store, zipFile, folderName) {
   var dirPath = './Data-'+store+'/';
   var zip = new AdmZip(dirPath+zipFile);
   var zipEntries = zip.getEntries(); // an array of ZipEntry records
@@ -64,7 +58,12 @@ function getImportExport(zipFile, folderName) {
       }
     }
   });
+  fs.appendFileSync('./log'+store+'.txt', 'End Time:'+getDateTime()+'\n', {encoding:'utf8'});
 }
+
+var sourceFile = require('./config.txt');
+var store = sourceFile.storename;
+var lastTime = sourceFile.lastdate;
 
 var files = fs.readdirSync('./Data-'+store+'/')
               .map(function(v) {
@@ -75,10 +74,8 @@ var files = fs.readdirSync('./Data-'+store+'/')
               .sort(function(a, b) { return a.time - b.time; })
               .map(function(v) { return v.name; });
 
-var sourceFile = require('./config'+store+'.txt');
 files.forEach(function(zipFile){
   var time = fs.statSync('./Data-'+store+'/' + zipFile).mtime.getTime();
-  var lastTime = sourceFile.lastdate;
   if(lastTime >= time) {
     // the late date modified is larger than current means we did it before
     // do nothing
@@ -86,11 +83,11 @@ files.forEach(function(zipFile){
   else {
     // the current time is larger than last time means its a new file
     // update the time
-    fs.writeFileSync('./config'+store+'.txt', 'module.exports = { lastdate : '+time+' };');
-    fs.appendFileSync('./log'+store+'.txt', '\n------------------ New Start -----------------', {encoding:'utf8'});
+    fs.writeFileSync('./config.txt', 'module.exports = { storename:"'+store+'", lastdate:"'+time+'" };');
+    fs.appendFileSync('./log'+store+'.txt', '\n------------------ New Start -----------------\n', {encoding:'utf8'});
     fs.appendFileSync('./log'+store+'.txt', 'Start Time:'+getDateTime()+'\n', {encoding:'utf8'});
     fs.appendFileSync('./log'+store+'.txt', 'zip => '+zipFile+'\n', {encoding:'utf8'});
     var folderName = path.basename(zipFile,'.zip');
-    getImportExport(zipFile, folderName);
+    getImportExport(store, zipFile, folderName);
   }
 });
