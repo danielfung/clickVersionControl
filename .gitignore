@@ -7,6 +7,7 @@ Data-IRB-RN/*
 node_modules/*
 $HOME/*
 extract/*
+npm-debug.log
 
 CRMS/*
 IACUC/*
