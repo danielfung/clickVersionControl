@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/VictorFung1/clickVersionControl#readme",
   "dependencies": {
+    "adm-zip": "^0.4.7",
     "events": "^1.1.1",
     "mkdirp": "^0.5.1",
     "node-jsxml": "^0.8.0",
