@@ -88,7 +88,7 @@ function gatherData() {
       if(lastTime >= time) {
         // the late date modified is larger than current means we did it before
         // do nothing
-        console.log("There's no new files found");
+        
       }
       else {
         // the current time is larger than last time means its a new file
