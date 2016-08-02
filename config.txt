@@ -1,1 +1,1 @@
-module.exports = { storename:"DCM", lastdate:"1468944620940" };
+module.exports = { storename:"CRMS", lastdate:"0", pathtoPatch:"./Patches/", cronTime:"1 * * * * *" };

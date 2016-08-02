@@ -68,10 +68,6 @@ function getImportExport(store, zipFile, folderName, _callback) {
   _callback();
 }
 
-var sourceFile = require('./config.txt');
-var lastTime = sourceFile.lastdate;
-var store = sourceFile.storename;
-
 function gatherData() {
   var sourceFile = require('./config.txt');
   var patchFolder = sourceFile.pathtoPatch;
@@ -86,32 +82,44 @@ function gatherData() {
 
   files.forEach(function(zipFile){
     var time = fs.statSync(patchFolder + zipFile).mtime.getTime();
-    if(lastTime >= time) {
-      // the late date modified is larger than current means we did it before
-      // do nothing
-      console.log("There's no new files found");
+    var string = zipFile,
+        substring = "Version";
+    if(string.indexOf(substring) !== -1) {
+      if(lastTime >= time) {
+        // the late date modified is larger than current means we did it before
+        // do nothing
+        console.log("There's no new files found");
+      }
+      else {
+        // the current time is larger than last time means its a new file
+        // update the time
+        fs.writeFileSync('./config.txt', 'module.exports = { storename:"'+store+'", lastdate:"'+time+'", pathtoPatch:"'+patchFolder+'", cronTime:"'+cronTimer+'" };');
+        lastTime = time;
+        fs.appendFileSync('./log'+store+'.txt', '\n------------------ New Start -----------------\n', {encoding:'utf8'});
+        fs.appendFileSync('./log'+store+'.txt', 'Start Time:'+getDateTime()+'\n', {encoding:'utf8'});
+        fs.appendFileSync('./log'+store+'.txt', 'zip => '+zipFile+'\n', {encoding:'utf8'});
+
+        var folderName = path.basename(zipFile,'.zip');
+        getImportExport(store, zipFile, folderName, function(){
+          fs.writeFileSync('./push.bat',' git checkout -b '+store+'\n git checkout '+store+ '\n git push --set-upstream origin '+store+'\n git add .\n git commit -m "'+folderName+'"\n git push \n');
+          var r = spawnSync('cmd.exe', ['/c', 'push.bat']);
+          console.log(r.stdout.toString());
+        });
+      }
     }
     else {
-      // the current time is larger than last time means its a new file
-      // update the time
-      fs.writeFileSync('./config.txt', 'module.exports = { storename:"'+store+'", lastdate:"'+time+'", pathtoPatch:"'+patchFolder+'" };');
-      lastTime = time;
-      fs.appendFileSync('./log'+store+'.txt', '\n------------------ New Start -----------------\n', {encoding:'utf8'});
-      fs.appendFileSync('./log'+store+'.txt', 'Start Time:'+getDateTime()+'\n', {encoding:'utf8'});
-      fs.appendFileSync('./log'+store+'.txt', 'zip => '+zipFile+'\n', {encoding:'utf8'});
-
-      var folderName = path.basename(zipFile,'.zip');
-      getImportExport(store, zipFile, folderName, function(){
-        fs.writeFileSync('./push.bat',' git checkout -b "'+store+'"\n git push --set-upstream origin '+store+'\n git add .\n git commit -m "'+folderName+'"\n git push \n');
-        var r = spawnSync('cmd.exe', ['/c', 'push.bat']);
-        console.log(r.stdout.toString());
-      });
+      // do nothing, not an Version
     }
   });
 }
 
-rule.minute = new schedule.Range(0, 59, 1);
+var sourceFile = require('./config.txt');
+var lastTime = sourceFile.lastdate;
+var store = sourceFile.storename;
+var cronTimer = sourceFile.cronTime;
 
-schedule.scheduleJob(rule, function(){
-    gatherData();
+var j =schedule.scheduleJob(cronTimer, function(){
+  gatherData();
 });
+
+j;
