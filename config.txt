@@ -1,1 +1,1 @@
-module.exports = { storename:"CRMS", lastdate:"0", pathtoPatch:"./Patches/", cronTime:"1 * * * * *" };
+module.exports = { storename:"ResearchNavigator", lastdate:"0", pathtoPatch:"./Patches/", cronTime:"1 * * * * *" };
