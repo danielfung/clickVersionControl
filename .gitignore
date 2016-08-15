@@ -1,16 +1,4 @@
-Data-CRMS/*
-Data-DCM/*
-Data-GRANTS/*
-Data-IACUC/*
-Data-IRB-RN/*
+Patches/*
 
 node_modules/*
 $HOME/*
-extract/*
-npm-debug.log
-
-CRMS/*
-IACUC/*
-DCM/*
-GRANTS/*
-IRB-RN/*
