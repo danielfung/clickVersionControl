@@ -12,8 +12,12 @@ Edit the path to the patch folders that contains all the zip files which has imp
 
 Edit the cronTime to set how often this program will rerun (by default 1 minute) - more details: https://www.npmjs.com/package/node-schedule
 
-*
+--
 
 frag.js is only for manually doing one process at a time.
 
 There is no config file for frag.js
+
+--
+
+Requires nodejs, npm, (use git bash if possible)
